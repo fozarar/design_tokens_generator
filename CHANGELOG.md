@@ -10,3 +10,7 @@
 * Material Design 3 compatible theme generation
 * Brand-aware color prioritization
 * Comprehensive documentation and examples
+
+## 1.0.1
+- Fixed: Corrected GitHub repository link in pubspec.yaml
+
