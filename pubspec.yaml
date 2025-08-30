@@ -1,6 +1,6 @@
 name: design_tokens_generator
 description: Convert JSON design tokens to Material 3 compatible Flutter themes and strongly-typed Dart classes.
-version: 1.0.2
+version: 1.0.3
 repository: https://github.com/fozarar/design_tokens_generator
 issue_tracker: https://github.com/fozarar/design_tokens_generator/issues
 homepage: https://pub.dev/packages/design_tokens_generator

@@ -67,6 +67,61 @@ void main(List<String> arguments) async {
     }
   }
 
+  // Validate paths before starting generation
+  print('🔍 Checking paths...');
+  print('   Assets: $assetsPath');
+  print('   Output: $outputPath');
+
+  // Check if assets directory exists
+  final assetsDir = Directory(assetsPath);
+  if (!await assetsDir.exists()) {
+    print('');
+    print('❌ Assets directory does not exist: $assetsPath');
+    print('');
+    print('💡 To fix this issue:');
+    print('');
+    print('1. Create the design tokens directory:');
+    print('   mkdir -p "$assetsPath"');
+    print('');
+    print('2. Add your Figma design token JSON files to this directory:');
+    print('   - Export your design tokens from Figma as JSON');
+    print('   - Place them in the assets directory');
+    print('');
+    print('3. Example structure:');
+    print('   $assetsPath/');
+    print('   ├── colors.json');
+    print('   ├── typography.json');
+    print('   └── spacing.json');
+    print('');
+    print('4. Or use a different path with:');
+    print('   dart run design_tokens_generator:generate_tokens --assets <your-path>');
+    print('');
+    print('📖 For more help, visit: https://pub.dev/packages/design_tokens_generator');
+    print('');
+    exit(1);
+  }
+
+  // Check if there are any JSON files in the assets directory
+  final jsonFiles = await assetsDir
+      .list(recursive: true)
+      .where((entity) => entity is File && entity.path.endsWith('.json'))
+      .where((entity) => !entity.path.split('/').last.startsWith('\$'))
+      .toList();
+
+  if (jsonFiles.isEmpty) {
+    print('');
+    print('⚠️  No JSON token files found in: $assetsPath');
+    print('');
+    print('💡 Please add your design token JSON files:');
+    print('   - Export your design tokens from Figma as JSON');
+    print('   - Place them in: $assetsPath');
+    print('   - Files should end with .json (e.g., colors.json, typography.json)');
+    print('');
+    exit(1);
+  }
+
+  print('   ✅ Found ${jsonFiles.length} JSON files');
+
   try {
     final generator = DesignTokenGenerator(
       assetsPath: assetsPath,

@@ -9,7 +9,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  design_tokens_generator: ^1.0.1
+  design_tokens_generator:
+    path: ../
 
 dev_dependencies:
   flutter_test:

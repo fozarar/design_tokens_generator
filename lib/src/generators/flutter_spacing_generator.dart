@@ -26,9 +26,9 @@ class FlutterSpacingGenerator implements CodeGenerator {
 
       for (final token in spacingTokens.entries) {
         final tokenName = _generateTokenName(token.key);
-        final value = token.value;
+        final value = _parseSpacingValue(token.value);
         buffer
-            .writeln("  static const double $tokenName = ${value.toString()};");
+            .writeln("  static const double $tokenName = $value;");
       }
     }
 
@@ -44,5 +44,29 @@ class FlutterSpacingGenerator implements CodeGenerator {
         .map((part) => part.toLowerCase())
         .join('_')
         .replaceAll('__', '_');
+  }
+
+  /// Parse spacing value and remove units like px, rem, em etc.
+  String _parseSpacingValue(dynamic value) {
+    if (value is num) {
+      return value.toDouble().toString();
+    }
+    
+    if (value is String) {
+      // Remove common CSS units: px, rem, em, pt, etc.
+      String cleaned = value
+          .replaceAll(RegExp(r'(px|rem|em|pt|dp|sp)$', caseSensitive: false), '')
+          .trim();
+      
+      // Try to parse as double
+      final parsed = double.tryParse(cleaned);
+      if (parsed != null) {
+        return parsed.toString();
+      }
+    }
+    
+    // Fallback - return as string but log warning
+    print('⚠️  Warning: Could not parse spacing value: $value, using fallback');
+    return '0.0';
   }
 }

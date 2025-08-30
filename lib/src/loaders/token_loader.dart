@@ -60,9 +60,31 @@ class TokenLoader {
   /// Automatically scan directory and subdirectories for JSON files
   Future<void> _scanAndLoadTokenFiles(Map<String, TokenSet> tokenSets) async {
     final directory = Directory(assetsPath);
-
+    
     if (!await directory.exists()) {
-      throw Exception('Assets directory does not exist: $assetsPath');
+      throw Exception('''
+📁 Assets directory does not exist: $assetsPath
+
+💡 To fix this issue:
+
+1. Create the design tokens directory:
+   mkdir -p "$assetsPath"
+
+2. Add your Figma design token JSON files to this directory:
+   - Copy your exported JSON files from Figma
+   - Place them in: $assetsPath/
+
+3. Example structure:
+   $assetsPath/
+   ├── colors.json
+   ├── typography.json
+   └── spacing.json
+
+4. Or use a different path with:
+   dart run design_tokens_generator:generate_tokens --assets <your-path>
+
+📖 For more help, visit: https://pub.dev/packages/design_tokens_generator
+''');
     }
 
     await for (final entity in directory.list(recursive: true)) {

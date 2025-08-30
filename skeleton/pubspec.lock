@@ -44,11 +44,10 @@ packages:
   design_tokens_generator:
     dependency: "direct main"
     description:
-      name: design_tokens_generator
-      sha256: "3cd738a59e26a5576101e4a5cf2b201621afdd780da6f7992073307d1cfeb828"
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.0.1"
+      path: ".."
+      relative: true
+    source: path
+    version: "1.0.3"
   fake_async:
     dependency: transitive
     description:
