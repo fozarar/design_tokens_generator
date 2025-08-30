@@ -7,25 +7,87 @@ class TokenLoader {
 
   TokenLoader({required this.assetsPath});
 
-  /// Load metadata from $metadata.json
-  Future<TokenMetadata> loadMetadata() async {
+  /// Load metadata from $metadata.json (optional)
+  Future<TokenMetadata?> loadMetadata() async {
     final file = File('$assetsPath/\$metadata.json');
-    final content = await file.readAsString();
-    final json = jsonDecode(content) as Map<String, dynamic>;
-    return TokenMetadata.fromJson(json);
+    if (!await file.exists()) {
+      print(
+          'ℹ️  No \$metadata.json found - will scan for JSON files automatically');
+      return null;
+    }
+
+    try {
+      final content = await file.readAsString();
+      final json = jsonDecode(content) as Map<String, dynamic>;
+      return TokenMetadata.fromJson(json);
+    } catch (e) {
+      print('⚠️  Failed to parse \$metadata.json: $e');
+      return null;
+    }
   }
 
-  /// Load all token files based on metadata order
+  /// Load all token files - either from metadata order or by scanning directory
   Future<Map<String, TokenSet>> loadAllTokens() async {
     final metadata = await loadMetadata();
     final tokenSets = <String, TokenSet>{};
 
-    for (final tokenSetPath in metadata.tokenSetOrder) {
-      final tokens = await loadTokenSet(tokenSetPath);
-      tokenSets[tokenSetPath] = tokens;
+    if (metadata != null) {
+      // Use metadata order if available
+      print('📋 Using metadata file to load tokens in order');
+      for (final tokenSetPath in metadata.tokenSetOrder) {
+        try {
+          final tokens = await loadTokenSet(tokenSetPath);
+          tokenSets[tokenSetPath] = tokens;
+          print('   ✓ Loaded: $tokenSetPath.json');
+        } catch (e) {
+          print('   ⚠️  Failed to load: $tokenSetPath.json - $e');
+        }
+      }
+    } else {
+      // Scan directory for JSON files automatically
+      print('🔍 Scanning directory for JSON token files');
+      await _scanAndLoadTokenFiles(tokenSets);
     }
 
+    if (tokenSets.isEmpty) {
+      throw Exception('No token files found in $assetsPath');
+    }
+
+    print('📦 Loaded ${tokenSets.length} token sets');
     return tokenSets;
+  }
+
+  /// Automatically scan directory and subdirectories for JSON files
+  Future<void> _scanAndLoadTokenFiles(Map<String, TokenSet> tokenSets) async {
+    final directory = Directory(assetsPath);
+
+    if (!await directory.exists()) {
+      throw Exception('Assets directory does not exist: $assetsPath');
+    }
+
+    await for (final entity in directory.list(recursive: true)) {
+      if (entity is File && entity.path.endsWith('.json')) {
+        // Skip metadata and themes files as they're not token files
+        final fileName = entity.path.split('/').last;
+        if (fileName.startsWith('\$')) {
+          continue;
+        }
+
+        // Calculate relative path from assets directory
+        final relativePath = entity.path
+            .replaceFirst('${directory.path}/', '')
+            .replaceFirst('.json', '');
+
+        try {
+          final content = await entity.readAsString();
+          final json = jsonDecode(content) as Map<String, dynamic>;
+          tokenSets[relativePath] = TokenSet(tokens: json);
+          print('   ✓ Auto-loaded: $relativePath.json');
+        } catch (e) {
+          print('   ⚠️  Failed to parse: $relativePath.json - $e');
+        }
+      }
+    }
   }
 
   /// Load a specific token set file
