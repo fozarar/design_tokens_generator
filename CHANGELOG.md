@@ -1,3 +1,18 @@
+## 1.0.5
+
+* **Fixed**: Replaced all print statements with proper logging framework for better debugging
+* **Improved**: Generated constant names now follow camelCase naming convention (colorGreen50 instead of color_green_50)
+* **Enhanced**: Better lint compliance with proper constant identifier naming
+* **Added**: Professional logging with different levels (info, warning, severe) for better development experience
+* **Fixed**: Eliminated all lint warnings and errors in generated code
+* **Improved**: Token name generation now produces more readable and consistent variable names
+* **Enhanced**: Code quality improvements across all generator classes
+
+## 1.0.4
+
+* **Added**: Enhanced token name generation for better camelCase support
+* **Improved**: Better handling of complex token paths and naming
+
 ## 1.0.3
 
 * **Fixed**: App spacing generator now properly parses values with units (px, rem, em, etc.)

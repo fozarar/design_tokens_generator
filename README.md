@@ -13,7 +13,7 @@ and the Flutter guide for
 
 # Design Tokens Generator
 
-A powerful Flutter package for generating design tokens from design system files. This package converts design tokens (colors, typography, spacing) into Flutter-ready Dart code with advanced theme support and automatic seed color detection.
+A powerful Flutter package for generating design tokens from design system files. This package converts design tokens (colors, typography, spacing) into Flutter-ready Dart code with advanced theme support, professional logging, and camelCase naming conventions.
 
 ## 🚀 Features
 
@@ -26,6 +26,18 @@ A powerful Flutter package for generating design tokens from design system files
 - 📏 **Spacing Generation**: Creates spacing constants from design tokens
 - 🛠️ **CLI & Programmatic API**: Use via command line or integrate into your build process
 - 🎯 **Brand-Aware**: Prioritizes brand colors (primary, blue, green, purple) for theme generation
+- 🔧 **Professional Logging**: Advanced logging system with different levels for better debugging
+- 📝 **CamelCase Naming**: Generated constants follow Dart naming conventions (colorGreen50 instead of color_green_50)
+- ✅ **Lint Compliant**: All generated code passes strict lint checks
+- 🚀 **Developer Experience**: Enhanced error messages and debugging information
+
+## ✨ What's New in v1.0.5
+
+- **🔧 Professional Logging**: Replaced all print statements with structured logging
+- **📝 CamelCase Constants**: Generated variable names now follow proper Dart naming conventions
+- **✅ Zero Lint Warnings**: All generated code is fully lint-compliant
+- **🎯 Better Error Handling**: Enhanced debugging with informative log messages
+- **🚀 Improved DX**: Better developer experience with clearer feedback
 
 ## 🔧 Installation
 
@@ -53,11 +65,25 @@ dependencies:
 Run the generator from your project root:
 
 ```bash
-# Basic usage
+# Basic usage with enhanced logging
 dart run design_tokens_generator:generate_tokens --assets assets/design_tokens --output lib/app/core/design_system/generated
 
 # Using the compiled binary (faster)
 ./bin/generate_tokens_compiled --assets assets/design_tokens --output lib/app/core/design_system/generated
+```
+
+The generator now provides detailed logging output:
+```
+📁 Project root: /your/project/path
+🔍 Checking paths...
+   Assets: /your/project/assets/design_tokens
+   Output: /your/project/lib/generated
+ℹ️  Loading token metadata...
+✅ Loaded colors.json: 45 tokens
+✅ Loaded spacing.json: 12 tokens  
+🔗 Resolved 57 design tokens
+🎯 Generated camelCase constants: colorGreen50, spacingXs, etc.
+✅ Design tokens generated successfully!
 ```
 
 ### Programmatic Usage
@@ -85,17 +111,18 @@ Contains all color constants organized by theme:
 ```dart
 class AppColors {
   // Value Colors (base colors)
-  static const Color value_value_colors_brand_600 = Color(0xFF1570ef);
-  static const Color value_value_colors_brand_500 = Color(0xFF2e90fa);
+  static const Color colorGreen50 = Color(0xFFF0FDF4);
+  static const Color colorGreen500 = Color(0xFF22C55E);
+  static const Color colorBrandPrimary = Color(0xFF16A34A);
   
   // Individual Theme Colors
-  static const Color individual_individual_color_primary = Color(0xFF1570ef);
+  static const Color individualColorPrimary = Color(0xFF1570ef);
   
   // Corporate Theme Colors  
-  static const Color corporate_corporate_color_primary = Color(0xFF2e90fa);
+  static const Color corporateColorPrimary = Color(0xFF2e90fa);
   
   // Can Theme Colors
-  static const Color can_can_color_primary = Color(0xFF6938ef);
+  static const Color canColorPrimary = Color(0xFF6938ef);
 }
 ```
 
@@ -107,7 +134,7 @@ class AppTheme {
     return ThemeData(
       useMaterial3: true,
       colorScheme: ColorScheme.fromSeed(
-        seedColor: AppColors.value_value_colors_brand_600, // Auto-selected
+        seedColor: AppColors.colorBrandPrimary, // Auto-selected
         brightness: Brightness.light,
       ),
       // ... complete theme configuration
@@ -118,7 +145,7 @@ class AppTheme {
     return ThemeData(
       useMaterial3: true,
       colorScheme: ColorScheme.fromSeed(
-        seedColor: AppColors.value_value_colors_brand_700, // Auto-selected
+        seedColor: AppColors.colorGreen500, // Auto-selected
         brightness: Brightness.dark,
       ),
       // ... complete theme configuration
@@ -144,11 +171,11 @@ class AppTypography {
 Spacing constants:
 ```dart
 class AppSpacing {
-  static const double xs = 4.0;
-  static const double sm = 8.0;
-  static const double md = 16.0;
-  static const double lg = 24.0;
-  // ... more spacing values
+  static const double spacingXxs = 4.0;
+  static const double spacingXs = 8.0;
+  static const double spacingMd = 16.0;
+  static const double spacingXl = 32.0;
+  static const double spacing2xl = 48.0;
 }
 ```
 
@@ -192,7 +219,7 @@ The generator automatically selects the best seed colors for Material 3 themes u
 🎯 Brand tokens found: 10
    Brand: value.value.colors.brand.600 -> #1570ef
 🎯 Selected light token: value.value.colors.brand.600
-🎯 Converted to: AppColors.value_value_colors_brand_600
+🎯 Converted to: AppColors.colorBrandPrimary
 ```
 
 ## 🔄 Token Resolution
@@ -216,8 +243,8 @@ The generator handles complex token references:
 
 Results in resolved tokens ready for Flutter:
 ```dart
-static const Color color_primary = Color(0xFF1570ef);
-static const Color color_brand_600 = Color(0xFF1570ef);
+static const Color colorPrimary = Color(0xFF1570ef);
+static const Color colorBrand600 = Color(0xFF1570ef);
 ```
 
 ## 🎭 Multi-Theme Support
@@ -256,12 +283,12 @@ class MyHomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.individual_individual_color_background_primary,
+      backgroundColor: AppColors.individualColorPrimary,
       body: Center(
         child: Text(
           'Hello Design System!',
           style: Theme.of(context).textTheme.displayLarge?.copyWith(
-            color: AppColors.individual_individual_color_text_primary,
+            color: AppColors.individualColorPrimary,
           ),
         ),
       ),
@@ -286,6 +313,25 @@ dart test
 ```bash
 dart analyze
 ```
+
+## 🔍 Enhanced Debugging
+
+The package now includes professional logging for better debugging:
+
+```dart
+import 'package:logging/logging.dart';
+
+// Enable logging to see detailed generation process
+Logger.root.level = Level.ALL;
+Logger.root.onRecord.listen((record) {
+  print('${record.level.name}: ${record.time}: ${record.message}');
+});
+```
+
+Log levels include:
+- **INFO**: General progress information
+- **WARNING**: Non-critical issues (e.g., unparseable values)
+- **SEVERE**: Critical errors that stop generation
 
 ## 🔍 Troubleshooting
 

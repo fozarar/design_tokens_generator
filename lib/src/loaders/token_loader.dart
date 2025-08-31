@@ -1,17 +1,19 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:logging/logging.dart';
 import '../models/design_token.dart';
 
 class TokenLoader {
-  final String assetsPath;
+  static final _logger = Logger('TokenLoader');
 
   TokenLoader({required this.assetsPath});
+  final String assetsPath;
 
   /// Load metadata from $metadata.json (optional)
   Future<TokenMetadata?> loadMetadata() async {
     final file = File('$assetsPath/\$metadata.json');
     if (!await file.exists()) {
-      print(
+      _logger.info(
           'ℹ️  No \$metadata.json found - will scan for JSON files automatically');
       return null;
     }
@@ -21,7 +23,7 @@ class TokenLoader {
       final json = jsonDecode(content) as Map<String, dynamic>;
       return TokenMetadata.fromJson(json);
     } catch (e) {
-      print('⚠️  Failed to parse \$metadata.json: $e');
+      _logger.warning('⚠️  Failed to parse \$metadata.json: $e');
       return null;
     }
   }
@@ -33,19 +35,19 @@ class TokenLoader {
 
     if (metadata != null) {
       // Use metadata order if available
-      print('📋 Using metadata file to load tokens in order');
+      _logger.info('📋 Using metadata file to load tokens in order');
       for (final tokenSetPath in metadata.tokenSetOrder) {
         try {
           final tokens = await loadTokenSet(tokenSetPath);
           tokenSets[tokenSetPath] = tokens;
-          print('   ✓ Loaded: $tokenSetPath.json');
+          _logger.info('   ✓ Loaded: $tokenSetPath.json');
         } catch (e) {
-          print('   ⚠️  Failed to load: $tokenSetPath.json - $e');
+          _logger.warning('   ⚠️  Failed to load: $tokenSetPath.json - $e');
         }
       }
     } else {
       // Scan directory for JSON files automatically
-      print('🔍 Scanning directory for JSON token files');
+      _logger.info('🔍 Scanning directory for JSON token files');
       await _scanAndLoadTokenFiles(tokenSets);
     }
 
@@ -53,14 +55,14 @@ class TokenLoader {
       throw Exception('No token files found in $assetsPath');
     }
 
-    print('📦 Loaded ${tokenSets.length} token sets');
+    _logger.info('📦 Loaded ${tokenSets.length} token sets');
     return tokenSets;
   }
 
   /// Automatically scan directory and subdirectories for JSON files
   Future<void> _scanAndLoadTokenFiles(Map<String, TokenSet> tokenSets) async {
     final directory = Directory(assetsPath);
-    
+
     if (!await directory.exists()) {
       throw Exception('''
 📁 Assets directory does not exist: $assetsPath
@@ -104,9 +106,9 @@ class TokenLoader {
           final content = await entity.readAsString();
           final json = jsonDecode(content) as Map<String, dynamic>;
           tokenSets[relativePath] = TokenSet(tokens: json);
-          print('   ✓ Auto-loaded: $relativePath.json');
+          _logger.info('   ✓ Auto-loaded: $relativePath.json');
         } catch (e) {
-          print('   ⚠️  Failed to parse: $relativePath.json - $e');
+          _logger.warning('   ⚠️  Failed to parse: $relativePath.json - $e');
         }
       }
     }

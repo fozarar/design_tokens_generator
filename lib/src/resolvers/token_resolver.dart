@@ -1,9 +1,11 @@
+import 'package:logging/logging.dart';
 import '../models/design_token.dart';
 
 class TokenResolver {
-  final Map<String, DesignToken> _tokens;
+  static final _logger = Logger('TokenResolver');
 
   TokenResolver(this._tokens);
+  final Map<String, DesignToken> _tokens;
 
   /// Resolve all token references to their final values
   Map<String, dynamic> resolveAllTokens() {
@@ -15,12 +17,14 @@ class TokenResolver {
       try {
         resolved[path] = _resolveToken(path, resolving);
       } catch (e) {
-        print('⚠️  Failed to resolve token: $path - Using original value');
+        _logger.warning(
+            '⚠️  Failed to resolve token: $path - Using original value');
         // Use the original value as fallback for unresolved references
         resolved[path] = entry.value.value;
       }
     }
 
+    _logger.info('🔗 Resolved ${resolved.length} design tokens');
     return resolved;
   }
 

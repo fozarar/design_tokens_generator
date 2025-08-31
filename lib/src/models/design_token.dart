@@ -4,9 +4,6 @@ part 'design_token.g.dart';
 
 @JsonSerializable()
 class DesignToken {
-  final dynamic value;
-  final String type;
-  final String? description;
 
   const DesignToken({
     required this.value,
@@ -16,6 +13,9 @@ class DesignToken {
 
   factory DesignToken.fromJson(Map<String, dynamic> json) =>
       _$DesignTokenFromJson(json);
+  final dynamic value;
+  final String type;
+  final String? description;
 
   Map<String, dynamic> toJson() => _$DesignTokenToJson(this);
 
@@ -35,24 +35,24 @@ class DesignToken {
 
 @JsonSerializable()
 class TokenSet {
-  final Map<String, dynamic> tokens;
 
   const TokenSet({required this.tokens});
 
   factory TokenSet.fromJson(Map<String, dynamic> json) =>
       _$TokenSetFromJson(json);
+  final Map<String, dynamic> tokens;
 
   Map<String, dynamic> toJson() => _$TokenSetToJson(this);
 }
 
 @JsonSerializable()
 class TokenMetadata {
-  final List<String> tokenSetOrder;
 
   const TokenMetadata({required this.tokenSetOrder});
 
   factory TokenMetadata.fromJson(Map<String, dynamic> json) =>
       _$TokenMetadataFromJson(json);
+  final List<String> tokenSetOrder;
 
   Map<String, dynamic> toJson() => _$TokenMetadataToJson(this);
 }
